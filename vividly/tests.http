@@ -1,0 +1,30 @@
+GET http://localhost:5000/api/genres
+
+###
+
+GET http://localhost:5000/api/genres/65a69236c71e1fcc91c11b0e
+
+###
+
+POST http://localhost:5000/api/genres/
+Content-Type: application/json
+
+{
+  "name": "romance",
+  "tags": [
+    "tearjerker"
+  ]
+}
+
+###
+
+PUT http://localhost:5000/api/genres/65a6936eb0375327db8ab889
+Content-Type: application/json
+
+{
+  "name": "rom-com"
+}
+
+###
+
+DELETE http://localhost:5000/api/genres/65a6936eb0375327db8ab889
