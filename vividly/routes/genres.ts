@@ -1,10 +1,6 @@
 import express from "express";
-import genreValidator from "../genres/genre-validator";
+import genreValidator from "../validators/genre-validator";
 import mongoose from "mongoose";
-
-mongoose.connect("mongodb://localhost/vividly")
-    .then(() => console.log("Connected to MongoDB"))
-    .catch(error => console.log(error));
 
 const genreSchema = new mongoose.Schema({
     name: {type: String, required: true, min: 3, max: 50},

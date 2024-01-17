@@ -1,11 +1,11 @@
+### Genre route teste
+### Fetch all genres
 GET http://localhost:5000/api/genres
 
-###
-
+### Fetch specific genre using ID
 GET http://localhost:5000/api/genres/65a69236c71e1fcc91c11b0e
 
-###
-
+### Create new genre
 POST http://localhost:5000/api/genres/
 Content-Type: application/json
 
@@ -16,8 +16,7 @@ Content-Type: application/json
   ]
 }
 
-###
-
+### Update genre using ID
 PUT http://localhost:5000/api/genres/65a6936eb0375327db8ab889
 Content-Type: application/json
 
@@ -25,6 +24,34 @@ Content-Type: application/json
   "name": "rom-com"
 }
 
-###
-
+### Self explanatory
 DELETE http://localhost:5000/api/genres/65a6936eb0375327db8ab889
+
+
+### Customers route tests
+### Fetch all customers
+GET http://localhost:5000/api/customers
+
+### Fetch specific customer using ID
+GET http://localhost:5000/api/customers/65a81f7d7057d93b37e5cd58
+
+### Create new customer
+POST http://localhost:5000/api/customers
+Content-Type: application/json
+
+{
+  "isGold": true,
+  "name": "Taylor Swift",
+  "phone": "+5559876"
+}
+
+### Update existing customer based on ID. It is possible to update a single field, or multiple at once.
+PUT http://localhost:5000/api/customers/65a821b9efc40a7ef4db9665
+Content-Type: application/json
+
+{
+  "isGold": false
+}
+
+### Delete customer from DB
+DELETE http://localhost:5000/api/customers/65a821b9efc40a7ef4db9665
