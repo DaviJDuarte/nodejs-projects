@@ -1,15 +1,6 @@
 import express from "express";
-import mongoose from "mongoose";
 import {Customer} from "../interfaces";
-import {customerCreateValidator, customerUpdateValidator} from "../validators/body-validators";
-
-const customerSchema = new mongoose.Schema({
-    isGold: {type: Boolean, default: false},
-    name: {type: String, required: true, min: 1, max: 100},
-    phone: {type: String, required: true}
-});
-
-const CustomerModel = mongoose.model('Customer', customerSchema);
+import {CustomerModel, customerCreateValidator, customerUpdateValidator} from "../models/customer";
 
 const router = express.Router();
 

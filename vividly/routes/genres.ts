@@ -1,24 +1,16 @@
 import express from "express";
-import {genreValidator} from "../validators/body-validators";
-import mongoose from "mongoose";
-
-const genreSchema = new mongoose.Schema({
-    name: {type: String, required: true, min: 3, max: 50},
-    tags: [String]
-});
-
-const Genre = mongoose.model('Genre', genreSchema);
+import {GenreModel, genreValidator} from "../models/genre";
 
 const router = express.Router();
 
 router.get('/', async (_req, res) => {
-    const genres = await Genre.find();
+    const genres = await GenreModel.find();
     return res.send(JSON.stringify({genres}));
 });
 
 router.get('/:id', async (req, res) => {
     try {
-        const genres = await Genre.find({_id: req.params.id});
+        const genres = await GenreModel.find({_id: req.params.id});
         return res.send(JSON.stringify(genres));
     } catch (ex: any) {
         if (ex.name === 'CastError' && ex.path === '_id') {
@@ -34,7 +26,7 @@ router.post('/', async (req, res) => {
 
     if (error) return res.status(400).send(JSON.stringify({message: error.message}));
 
-    const genre = new Genre({
+    const genre = new GenreModel({
         name: req.body.name,
         tags: req.body.tags || []
     });
@@ -50,7 +42,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-        const genre = await Genre.findById(req.params.id);
+        const genre = await GenreModel.findById(req.params.id);
 
         if (!genre) return res.status(404).send(JSON.stringify({message: `No resource found with id(${req.params.id}).`}));
 
@@ -78,7 +70,7 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        const genre = await Genre.findByIdAndDelete(req.params.id);
+        const genre = await GenreModel.findByIdAndDelete(req.params.id);
 
         if (!genre) return res.status(404).send(JSON.stringify({message: `No resource found with id(${req.params.id}).`}));
 

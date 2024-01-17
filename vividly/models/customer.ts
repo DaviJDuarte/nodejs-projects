@@ -1,14 +1,25 @@
-import Joi from 'joi';
-import {Customer, Genre} from "../interfaces";
+import mongoose from "mongoose";
+import {Customer} from "../interfaces";
+import Joi from "joi";
 
-export const genreValidator = (genre: Genre) => {
-    const schema = Joi.object({
-        name: Joi.string().min(3).required(),
-        tags: Joi.array()
-    });
+const customerSchema = new mongoose.Schema({
+    isGold: {
+        type: Boolean,
+        default: false
+    },
+    name: {
+        type: String,
+        required: true,
+        min: 1,
+        max: 100
+    },
+    phone: {
+        type: String,
+        required: true
+    }
+});
 
-    return schema.validate(genre);
-};
+export const CustomerModel = mongoose.model('Customer', customerSchema);
 
 export const customerCreateValidator = (customer: Customer) => {
     const schema = Joi.object({
@@ -28,5 +39,4 @@ export const customerUpdateValidator = (customer: Customer) => {
     });
 
     return schema.validate(customer);
-
 };
