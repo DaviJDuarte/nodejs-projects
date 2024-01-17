@@ -1,5 +1,5 @@
 import express from "express";
-import genreValidator from "../validators/genre-validator";
+import {genreValidator} from "../validators/body-validators";
 import mongoose from "mongoose";
 
 const genreSchema = new mongoose.Schema({

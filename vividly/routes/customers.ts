@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import {Customer} from "../interfaces";
+import {customerCreateValidator, customerUpdateValidator} from "../validators/body-validators";
 
 const customerSchema = new mongoose.Schema({
     isGold: {type: Boolean, default: false},
@@ -38,6 +39,10 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+    const {error} = customerCreateValidator(req.body);
+
+    if (error) return res.status(400).send(JSON.stringify({message: error.message}));
+
     const customer = new CustomerModel({
         isGold: req.body.isGold || false,
         name: req.body.name,
@@ -53,6 +58,10 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
+    const {error} = customerUpdateValidator(req.body);
+
+    if (error) return res.status(400).send(JSON.stringify({message: error.message}));
+
     try {
         const customer: Customer | null = await CustomerModel.findById(req.params.id);
 

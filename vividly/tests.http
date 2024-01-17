@@ -2,10 +2,11 @@
 
 ### Genre route teste
 ### Fetch all genres
+@genre_id=genre_id
 GET {{base}}/api/genres
 
 ### Fetch specific genre using ID
-GET {{base}}/api/genres/65a69236c71e1fcc91c11b0e
+GET {{base}}/api/genres/{{genre_id}}
 
 ### Create new genre
 POST {{base}}/api/genres/
@@ -19,7 +20,7 @@ Content-Type: application/json
 }
 
 ### Update genre using ID
-PUT {{base}}/api/genres/65a6936eb0375327db8ab889
+PUT {{base}}/api/genres/{{genre_id}}
 Content-Type: application/json
 
 {
@@ -27,15 +28,16 @@ Content-Type: application/json
 }
 
 ### Self explanatory
-DELETE {{base}}/api/genres/65a6936eb0375327db8ab889
+DELETE {{base}}/api/genres/{{genre_id}}
 
 
 ### Customers route tests
 ### Fetch all customers
+@customer_id=customer_id
 GET {{base}}/api/customers
 
 ### Fetch specific customer using ID
-GET {{base}}/api/customers/65a81f7d7057d93b37e5cd58
+GET {{base}}/api/customers/{{customer_id}}
 
 ### Create new customer
 POST {{base}}/api/customers
@@ -48,7 +50,7 @@ Content-Type: application/json
 }
 
 ### Update existing customer based on ID. It is possible to update a single field, or multiple at once.
-PUT {{base}}/api/customers/65a821b9efc40a7ef4db9665
+PUT {{base}}/api/customers/{{customer_id}}
 Content-Type: application/json
 
 {
@@ -56,4 +58,4 @@ Content-Type: application/json
 }
 
 ### Delete customer from DB
-DELETE {{base}}/api/customers/65a821b9efc40a7ef4db9665
+DELETE {{base}}/api/customers/{{customer_id}}
