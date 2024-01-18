@@ -1,8 +1,16 @@
-import mongoose from "mongoose";
-import {Customer} from "../interfaces";
+import mongoose, {ObjectId} from "mongoose";
 import Joi from "joi";
 
-const customerSchema = new mongoose.Schema({
+export interface Customer {
+    [key: string]: any
+
+    _id?: ObjectId,
+    isGold: boolean,
+    name: string,
+    phone: string
+}
+
+export const customerSchema: mongoose.Schema<Customer> = new mongoose.Schema<Customer>({
     isGold: {
         type: Boolean,
         default: false
@@ -19,7 +27,7 @@ const customerSchema = new mongoose.Schema({
     }
 });
 
-export const CustomerModel = mongoose.model('Customer', customerSchema);
+export const CustomerModel: mongoose.Model<Customer> = mongoose.model<Customer>('Customer', customerSchema);
 
 export const customerCreateValidator = (customer: Customer) => {
     const schema = Joi.object({

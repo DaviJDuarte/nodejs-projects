@@ -1,0 +1,30 @@
+### Customers route tests
+@base=http://localhost:5000/api/customers
+@customer_id=customer_id
+
+### Fetch all customers
+GET {{base}}
+
+### Fetch specific customer using ID
+GET {{base}}/{{customer_id}}
+
+### Create new customer
+POST {{base}}
+Content-Type: application/json
+
+{
+  "isGold": true,
+  "name": "Taylor Swift",
+  "phone": "+5559876"
+}
+
+### Update existing customer. It is possible to update a single field, or multiple at once.
+PUT {{base}}/{{customer_id}}
+Content-Type: application/json
+
+{
+  "isGold": false
+}
+
+### Delete customer from DB
+DELETE {{base}}/{{customer_id}}

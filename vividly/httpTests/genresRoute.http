@@ -1,0 +1,28 @@
+### Genre route tests
+@base=http://localhost:5000/api/genres
+@genre_id=genre_id
+
+### Fetch all genres
+GET {{base}}
+
+### Fetch specific genre using ID
+GET {{base}}/{{genre_id}}
+
+### Create new genre
+POST {{base}}
+Content-Type: application/json
+
+{
+  "name": "comedy"
+}
+
+### Update genre
+PUT {{base}}/{{genre_id}}
+Content-Type: application/json
+
+{
+  "name": "romance"
+}
+
+### Remove genre from DB
+DELETE {{base}}/{{genre_id}}

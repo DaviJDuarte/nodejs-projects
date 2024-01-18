@@ -1,94 +1,109 @@
-import express from "express";
-import {Customer} from "../interfaces";
-import {CustomerModel, customerCreateValidator, customerUpdateValidator} from "../models/customer";
+import {Request, Response, Router} from "express";
+import {
+    Customer,
+    CustomerModel,
+    customerCreateValidator,
+    customerSchema,
+    customerUpdateValidator
+} from "../models/customer";
+import mongoose, {HydratedDocument} from "mongoose";
+import {ValidationError} from "joi";
 
-const router = express.Router();
+const router: Router = Router();
 
-router.get('/', async (_req, res) => {
+router.get('/', async (_req: Request, res: Response) => {
     try {
-        const customers = await CustomerModel.find();
-        return res.send(JSON.stringify({customers}));
+        const customers: Customer[] = await CustomerModel.find();
+        return res.json(customers);
     } catch (error) {
-        return res.status(500).send(JSON.stringify(error));
+        return res.status(500).json(error);
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).json({message: "The provided ID is invalid!"});
+    }
+
     try {
-        const customer = await CustomerModel.findById(req.params.id);
+        const customer: Customer | null = await CustomerModel.findById(req.params.id);
 
-        if (!customer) return res.status(404).send(JSON.stringify({message: `No resource found with id: ${req.params.id}`}));
+        if (!customer) return res.status(404).json({message: `No resource found with id: ${req.params.id}`});
 
-        return res.send(JSON.stringify({customer}));
-    } catch (ex: any) {
-        if (ex.name === 'CastError' && ex.path === '_id') {
-            return res.status(400).send(JSON.stringify({message: "The provided ID is invalid"}));
-        }
-
-        return res.status(500).send(JSON.stringify(ex));
+        return res.json(customer);
+    } catch (ex) {
+        return res.status(500).json(ex);
     }
 });
 
-router.post('/', async (req, res) => {
-    const {error} = customerCreateValidator(req.body);
+router.post('/', async (req: Request, res: Response) => {
+    const {error}: { error: ValidationError | undefined } = customerCreateValidator(req.body);
 
-    if (error) return res.status(400).send(JSON.stringify({message: error.message}));
+    if (error) return res.status(400).json({message: error.message});
 
-    const customer = new CustomerModel({
+    const customer: HydratedDocument<Customer> = new CustomerModel({
         isGold: req.body.isGold || false,
         name: req.body.name,
         phone: req.body.phone
     });
 
     try {
-        const result = await customer.save();
-        return res.send(JSON.stringify({new_customer: result}));
+        const result: Customer = await customer.save();
+        return res.json({new_customer: result});
     } catch (ex) {
-        return res.status(500).send(JSON.stringify(ex));
+        return res.status(500).json(ex);
     }
 });
 
-router.put('/:id', async (req, res) => {
-    const {error} = customerUpdateValidator(req.body);
+router.put('/:id', async (req: Request, res: Response) => {
+    const {id} = req.params;
 
-    if (error) return res.status(400).send(JSON.stringify({message: error.message}));
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({message: "The provided ID is invalid!"});
+    }
+
+    const {error}: { error: ValidationError | undefined } = customerUpdateValidator(req.body);
+    if (error) return res.status(400).json({message: error.message});
+
+    const updates = req.body;
+
+    const filteredUpdates = Object.keys(updates).reduce((acc: Record<string, any>, field: string) => {
+        acc.$set = acc.$set || {};
+
+        if (customerSchema.paths[field]) {
+            acc.$set[field] = updates[field];
+        }
+        return acc;
+    }, {});
 
     try {
-        const customer: Customer | null = await CustomerModel.findById(req.params.id);
+        const result: Customer | null = await CustomerModel.findByIdAndUpdate(id, filteredUpdates, {
+            new: true
+        });
 
-        if (!customer) return res.status(404).send(JSON.stringify({message: `No resource found with id: ${req.params.id}`}));
-
-        for (const key in req.body) {
-            if (key in customer) {
-                customer[key] = req.body[key];
-            }
+        if (!result) {
+            return res.status(400).json({message: 'Customer not found'});
         }
 
-        const result = await customer.save();
-        return res.send(JSON.stringify({updated_customer: result}));
-
-    } catch (ex: any) {
-        if (ex.name === 'CastError' && ex.path === '_id') {
-            return res.status(400).send(JSON.stringify({message: "The provided ID is invalid"}));
-        }
-
-        return res.status(500).send(JSON.stringify(ex));
+        return res.json({updated_customer: result});
+    } catch (ex) {
+        return res.status(500).json(ex);
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request, res: Response) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).json({message: "The provided ID is invalid!"});
+    }
+
     try {
-        const customer = await CustomerModel.findByIdAndDelete(req.params.id);
+        const customer: Customer | null = await CustomerModel.findByIdAndDelete(req.params.id);
 
-        if (!customer) return res.status(404).send(JSON.stringify({message: `No resource found with id: ${req.params.id}`}));
+        if (!customer) return res.status(404).json({message: `No resource found with id: ${req.params.id}`});
 
-        return res.send(JSON.stringify({deleted: customer}));
-    } catch (ex: any) {
-        if (ex.name === 'CastError' && ex.path === '_id') {
-            return res.status(400).send(JSON.stringify({message: "The provided ID is invalid"}));
-        }
-
-        return res.status(500).send(JSON.stringify(ex));
+        return res.json({deleted: customer});
+    } catch (ex) {
+        return res.status(500).json(ex);
     }
 });
 

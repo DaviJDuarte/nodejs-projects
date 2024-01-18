@@ -1,86 +1,90 @@
-import express from "express";
-import {GenreModel, genreValidator} from "../models/genre";
+import {Request, Response, Router} from "express";
+import {Genre, GenreModel, genreValidator} from "../models/genre";
+import mongoose, {HydratedDocument} from "mongoose";
+import {ValidationError} from "joi";
 
-const router = express.Router();
+const router: Router = Router();
 
-router.get('/', async (_req, res) => {
-    const genres = await GenreModel.find();
-    return res.send(JSON.stringify({genres}));
-});
-
-router.get('/:id', async (req, res) => {
+router.get('/', async (_req: Request, res: Response) => {
     try {
-        const genres = await GenreModel.find({_id: req.params.id});
-        return res.send(JSON.stringify(genres));
-    } catch (ex: any) {
-        if (ex.name === 'CastError' && ex.path === '_id') {
-            return res.status(400).send(JSON.stringify({message: "The provided ID is invalid"}));
-        }
-
-        return res.status(500).send(JSON.stringify(ex));
+        const genres: Genre[] = await GenreModel.find();
+        return res.json(genres);
+    } catch (ex) {
+        res.status(500).json(ex);
     }
 });
 
-router.post('/', async (req, res) => {
-    const {error} = genreValidator(req.body);
+router.get('/:id', async (req: Request, res: Response) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).json({message: "The provided ID is invalid!"});
+    }
 
-    if (error) return res.status(400).send(JSON.stringify({message: error.message}));
+    try {
+        const genre: Genre | null = await GenreModel.findById(req.params.id);
 
-    const genre = new GenreModel({
-        name: req.body.name,
-        tags: req.body.tags || []
+        if (!genre) return res.status(404).json({message: `No resource found with id(${req.params.id}).`});
+
+        return res.json(genre);
+    } catch (ex) {
+        return res.status(500).json(ex);
+    }
+});
+
+
+router.post('/', async (req: Request, res: Response) => {
+    const {error}: { error: ValidationError | undefined } = genreValidator(req.body);
+
+    if (error) return res.status(400).json({message: error.message});
+
+    const genre: HydratedDocument<Genre> = new GenreModel({
+        name: req.body.name
     });
 
     try {
-        const result = await genre.save();
-        return res.send(JSON.stringify({new_genre: result}));
+        const result: Genre = await genre.save();
+        return res.json({new_genre: result});
     } catch (ex) {
-        return res.status(500).send(JSON.stringify(ex));
+        return res.status(500).json(ex);
     }
 
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req: Request, res: Response) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).json({message: "The provided ID is invalid!"});
+    }
+
+    const {error}: { error: ValidationError | undefined } = genreValidator(req.body);
+    if (error) return res.status(400).json({message: error.message});
+
     try {
-        const genre = await GenreModel.findById(req.params.id);
-
-        if (!genre) return res.status(404).send(JSON.stringify({message: `No resource found with id(${req.params.id}).`}));
-
-        const {error} = genreValidator(req.body);
-        if (error) return res.status(400).send(JSON.stringify({message: error.message}));
-
-        genre.set({
-            name: req.body.name,
-            tags: req.body.tags || []
+        const genre: Genre | null = await GenreModel.findByIdAndUpdate(req.params.id, {
+            name: req.body.name
         });
 
+        if (!genre) return res.status(404).json({message: `No resource found with id(${req.params.id}).`});
 
-        const result = await genre.save();
-        return res.send(JSON.stringify({updated_genre: result}));
+        return res.json({updated_genre: genre});
 
-    } catch (ex: any) {
-        if (ex.name === 'CastError' && ex.path === '_id') {
-            return res.status(400).send(JSON.stringify({message: "The provided ID is invalid"}));
-        }
-
-        return res.status(500).send(JSON.stringify(ex));
+    } catch (ex) {
+        return res.status(500).json(ex);
     }
 
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request, res: Response) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).json({message: "The provided ID is invalid!"});
+    }
+
     try {
-        const genre = await GenreModel.findByIdAndDelete(req.params.id);
+        const genre: Genre | null = await GenreModel.findByIdAndDelete(req.params.id);
 
-        if (!genre) return res.status(404).send(JSON.stringify({message: `No resource found with id(${req.params.id}).`}));
+        if (!genre) return res.status(404).json({message: `No resource found with id(${req.params.id}).`});
 
-        return res.send(JSON.stringify({deleted: genre}));
-    } catch (ex: any) {
-        if (ex.name === 'CastError' && ex.path === '_id') {
-            return res.status(400).send(JSON.stringify({message: "The provided ID is invalid"}));
-        }
-
-        return res.status(500).send(JSON.stringify(ex));
+        return res.json({deleted: genre});
+    } catch (ex) {
+        return res.status(500).json(ex);
     }
 });
 

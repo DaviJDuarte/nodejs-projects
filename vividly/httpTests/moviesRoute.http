@@ -1,0 +1,33 @@
+### Movies route tests
+@base=http://localhost:5000/api/movies
+@movie_id=movie_id
+@genre_id=genre_id
+
+### Get all movies
+GET {{base}}
+
+### Get specific movie by ID
+GET {{base}}/{{movie_id}}
+
+### Create new movie
+POST {{base}}
+Content-Type: application/json
+
+{
+  "title": "Ted",
+  "genreId": {{genre_id}},
+  "numberInStock": 3,
+  "dailyRentalRate": 1
+}
+
+### Update existing movie info
+PUT {{base}}/{{movie_id}}
+Content-Type: application/json
+
+{
+  "genreId": {{genre_id}},
+  "dailyRentalRate": 1
+}
+
+### Delete movie from DB
+DELETE {{base}}/{{movie_id}}
