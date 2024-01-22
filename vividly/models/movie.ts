@@ -16,6 +16,7 @@ export const movieSchema: mongoose.Schema<Movie> = new mongoose.Schema<Movie>({
         type: String,
         min: 2,
         max: 255,
+        trim: true,
         required: true
     },
     genre: {

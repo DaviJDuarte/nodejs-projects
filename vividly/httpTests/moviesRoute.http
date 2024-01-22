@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
   "title": "Ted",
-  "genreId": {{genre_id}},
+  "genreId": "{{genre_id}}",
   "numberInStock": 3,
   "dailyRentalRate": 1
 }
@@ -25,7 +25,7 @@ PUT {{base}}/{{movie_id}}
 Content-Type: application/json
 
 {
-  "genreId": {{genre_id}},
+  "genreId": "{{genre_id}}",
   "dailyRentalRate": 1
 }
 

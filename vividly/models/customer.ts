@@ -23,7 +23,9 @@ export const customerSchema: mongoose.Schema<Customer> = new mongoose.Schema<Cus
     },
     phone: {
         type: String,
-        required: true
+        required: true,
+        min: 5,
+        max: 50
     }
 });
 

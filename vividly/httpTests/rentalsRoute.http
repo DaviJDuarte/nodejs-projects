@@ -1,0 +1,19 @@
+@base=http://localhost:5000/api/rentals
+@rental_id=rental_id
+@customer_id=customer_id
+@movie_id=movie_id
+
+### Fetch all rentals
+GET {{base}}
+
+### Fetch specific rental using ID
+GET {{base}}/{{rental_id}}
+
+### Create new rental
+POST {{base}}
+Content-Type: application/json
+
+{
+  "movieId": "{{movie_id}}",
+  "customerId": "{{customer_id}}"
+}
