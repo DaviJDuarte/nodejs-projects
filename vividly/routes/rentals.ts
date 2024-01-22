@@ -1,7 +1,7 @@
 import {Router, Request, Response} from "express";
 import {Rental, RentalModel, rentalValidator} from "../models/rental";
 import {ValidationError} from "joi";
-import {HydratedDocument, isValidObjectId} from "mongoose";
+import mongoose, {HydratedDocument, isValidObjectId, ClientSession} from "mongoose";
 import {Movie, MovieModel} from "../models/movie";
 import {Customer, CustomerModel} from "../models/customer";
 
@@ -62,12 +62,21 @@ router.post('/', async (req: Request, res: Response) => {
         }
     });
 
-    rental = await rental.save();
+    const session: ClientSession = await mongoose.startSession();
+    try {
+        await session.withTransaction(async () => {
+            await rental.save();
+            movie.numberInStock--;
+            await movie.save();
+        });
 
-    movie.numberInStock--;
-    await movie.save();
-
-    return res.json(rental);
+        await session.commitTransaction();
+        return res.json(rental);
+    } catch (ex) {
+        await session.abortTransaction();
+        return res.status(500).json({message: "Something went wrong"});
+    } finally {
+        await session.endSession();
+    }
 });
-
 export default router;
