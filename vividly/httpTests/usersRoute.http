@@ -1,0 +1,12 @@
+@base=http://localhost:5000/api/users
+@email=example@example.com
+
+### Create new user
+POST {{base}}
+Content-Type: application/json
+
+{
+  "name": "David",
+  "email": "{{email}}",
+  "password": "SecurePassword123"
+}

@@ -1,4 +1,5 @@
 import {Router, Request, Response} from "express";
+import _ from 'lodash';
 import {RentalModel, rentalValidator} from "../models/rental";
 import {ValidationError} from "joi";
 import mongoose, {HydratedDocument, isValidObjectId, ClientSession} from "mongoose";
@@ -53,17 +54,8 @@ router.post('/', async (req: Request, res: Response) => {
         return res.status(400).json({message: `The requested movie ("${movie.title}") is not currently in stock.`});
 
     let rental: HydratedDocument<IRental> = new RentalModel({
-        customer: {
-            _id: customer._id,
-            isGold: customer.isGold,
-            name: customer.name,
-            phone: customer.phone
-        },
-        movie: {
-            _id: movie._id,
-            title: movie.title,
-            dailyRentalRate: movie.dailyRentalRate
-        }
+        customer: _.pick(customer, ['_id', 'isGold', 'name', 'phone']),
+        movie: _.pick(movie, ['_id', 'title', 'dailyRentalRate'])
     });
 
     const session: ClientSession = await mongoose.startSession();
