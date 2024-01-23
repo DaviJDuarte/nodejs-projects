@@ -1,18 +1,9 @@
-import mongoose, {Model, ObjectId, Schema} from "mongoose";
+import mongoose, {Model, Schema} from "mongoose";
 import Joi from "joi";
-import {Customer} from "./customer";
-import {Movie} from "./movie";
+import {models} from "../types";
+import IRental = models.IRental;
 
-export interface Rental {
-    _id?: ObjectId,
-    customer: Customer,
-    movie: Movie,
-    dateOut?: Date,
-    dateReturned?: Date
-    rentalFee?: number
-}
-
-export const rentalSchema: Schema<Rental> = new mongoose.Schema<Rental>({
+export const rentalSchema: Schema<IRental> = new mongoose.Schema<IRental>({
     customer: {
         type: new Schema({
             _id: {
@@ -74,9 +65,9 @@ export const rentalSchema: Schema<Rental> = new mongoose.Schema<Rental>({
     }
 });
 
-export const RentalModel: Model<Rental> = mongoose.model('Rental', rentalSchema);
+export const RentalModel: Model<IRental> = mongoose.model<IRental>('Rental', rentalSchema);
 
-export const rentalValidator = (rental: Rental) => {
+export const rentalValidator = (rental: IRental) => {
     const schema = Joi.object({
         customerId: Joi.string().required(),
         movieId: Joi.string().required()

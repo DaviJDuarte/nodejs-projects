@@ -1,14 +1,18 @@
 import {Router, Request, Response} from "express";
-import {Rental, RentalModel, rentalValidator} from "../models/rental";
+import {RentalModel, rentalValidator} from "../models/rental";
 import {ValidationError} from "joi";
 import mongoose, {HydratedDocument, isValidObjectId, ClientSession} from "mongoose";
-import {Movie, MovieModel} from "../models/movie";
-import {Customer, CustomerModel} from "../models/customer";
+import {MovieModel} from "../models/movie";
+import {CustomerModel} from "../models/customer";
+import {models} from "../types";
+import IRental = models.IRental;
+import IMovie = models.IMovie;
+import ICustomer = models.ICustomer;
 
 const router: Router = Router();
 
 router.get('/', async (_req: Request, res: Response) => {
-    const rentals: Rental[] = await RentalModel.find();
+    const rentals: IRental[] = await RentalModel.find();
     return res.json(rentals);
 });
 
@@ -18,7 +22,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (!isValidObjectId(id))
         return res.status(400).json({message: `The provided rentalId(${id}) is invalid!`});
 
-    const rental: Rental | null = await RentalModel.findById(id);
+    const rental: IRental | null = await RentalModel.findById(id);
     if (!rental)
         return res.status(404).json({message: `No rental found with ID(${id})`});
 
@@ -37,18 +41,18 @@ router.post('/', async (req: Request, res: Response) => {
     if (!isValidObjectId(movieId))
         return res.status(400).json({message: `The provided movieId(${movieId}) is invalid!`});
 
-    const movie: HydratedDocument<Movie> | null = await MovieModel.findById(movieId);
+    const movie: HydratedDocument<IMovie> | null = await MovieModel.findById(movieId);
     if (!movie)
         return res.status(404).json({message: `No movie found with ID(${movieId})`});
 
-    const customer: HydratedDocument<Customer> | null = await CustomerModel.findById(customerId);
+    const customer: HydratedDocument<ICustomer> | null = await CustomerModel.findById(customerId);
     if (!customer)
         return res.status(404).json({message: `No customer found with ID(${customerId})`});
 
     if (movie.numberInStock <= 0)
         return res.status(400).json({message: `The requested movie ("${movie.title}") is not currently in stock.`});
 
-    let rental: HydratedDocument<Rental> = new RentalModel({
+    let rental: HydratedDocument<IRental> = new RentalModel({
         customer: {
             _id: customer._id,
             isGold: customer.isGold,

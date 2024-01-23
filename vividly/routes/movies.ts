@@ -1,14 +1,17 @@
 import {Request, Response, Router} from "express";
-import {Movie, MovieModel, movieCreateValidator, movieSchema, movieUpdateValidator} from "../models/movie";
-import {GenreModel, Genre} from "../models/genre";
+import {MovieModel, movieCreateValidator, movieSchema, movieUpdateValidator} from "../models/movie";
+import {GenreModel} from "../models/genre";
 import mongoose, {HydratedDocument} from "mongoose";
 import {ValidationError} from "joi";
+import {models} from "../types";
+import IMovie = models.IMovie;
+import IGenre = models.IGenre;
 
 const router: Router = Router();
 
 router.get('/', async (_req: Request, res: Response) => {
     try {
-        const movies: Movie[] | null = await MovieModel.find();
+        const movies: IMovie[] | null = await MovieModel.find();
         return res.json(movies);
     } catch (error) {
         return res.status(500).json(error);
@@ -21,7 +24,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     try {
-        const movie: Movie | null = await MovieModel.findById(req.params.id);
+        const movie: IMovie | null = await MovieModel.findById(req.params.id);
 
         if (!movie) return res.status(404).json({message: `No resource found with ID(${req.params.id}).`});
 
@@ -40,11 +43,11 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     try {
-        const genre: Genre | null = await GenreModel.findById(req.body.genreId);
+        const genre: IGenre | null = await GenreModel.findById(req.body.genreId);
 
         if (!genre) return res.status(404).json({message: "Genre not found"});
 
-        const movie: HydratedDocument<Movie> = new MovieModel({
+        const movie: HydratedDocument<IMovie> = new MovieModel({
             title: req.body.title,
             genre: {
                 _id: genre._id,
@@ -54,7 +57,7 @@ router.post('/', async (req: Request, res: Response) => {
             dailyRentalRate: req.body.dailyRentalRate
         });
 
-        const result: Movie = await movie.save();
+        const result: IMovie = await movie.save();
         return res.json(result);
 
     } catch (ex) {
@@ -87,7 +90,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         const {genreId = null} = updates;
 
         if (genreId) {
-            const genre: Genre | null = await GenreModel.findById(genreId);
+            const genre: IGenre | null = await GenreModel.findById(genreId);
 
             if (!genre) {
                 return res.status(400).json({message: 'Genre not found'});
@@ -100,7 +103,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         }
 
         // Update the document
-        const result: Movie | null = await MovieModel.findByIdAndUpdate(id, filteredUpdates, {
+        const result: IMovie | null = await MovieModel.findByIdAndUpdate(id, filteredUpdates, {
             new: true
         });
 
@@ -121,7 +124,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     }
 
     try {
-        const result: Movie | null = await MovieModel.findByIdAndDelete(req.params.id);
+        const result: IMovie | null = await MovieModel.findByIdAndDelete(req.params.id);
         if (!result) return res.status(404).json({message: `No resource found with ID(${req.params.id}).`});
         return res.json({deleted: result});
     } catch (ex) {

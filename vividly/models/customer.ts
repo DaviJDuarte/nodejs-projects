@@ -1,16 +1,9 @@
 import mongoose, {ObjectId} from "mongoose";
 import Joi from "joi";
+import {models} from "../types";
+import ICustomer = models.ICustomer;
 
-export interface Customer {
-    [key: string]: any
-
-    _id?: ObjectId,
-    isGold: boolean,
-    name: string,
-    phone: string
-}
-
-export const customerSchema: mongoose.Schema<Customer> = new mongoose.Schema<Customer>({
+export const customerSchema: mongoose.Schema<ICustomer> = new mongoose.Schema<ICustomer>({
     isGold: {
         type: Boolean,
         default: false
@@ -29,9 +22,9 @@ export const customerSchema: mongoose.Schema<Customer> = new mongoose.Schema<Cus
     }
 });
 
-export const CustomerModel: mongoose.Model<Customer> = mongoose.model<Customer>('Customer', customerSchema);
+export const CustomerModel: mongoose.Model<ICustomer> = mongoose.model<ICustomer>('Customer', customerSchema);
 
-export const customerCreateValidator = (customer: Customer) => {
+export const customerCreateValidator = (customer: ICustomer) => {
     const schema = Joi.object({
         isGold: Boolean,
         name: Joi.string().min(1).max(100).required(),
@@ -41,7 +34,7 @@ export const customerCreateValidator = (customer: Customer) => {
     return schema.validate(customer);
 };
 
-export const customerUpdateValidator = (customer: Customer) => {
+export const customerUpdateValidator = (customer: ICustomer) => {
     const schema = Joi.object({
         isGold: Joi.boolean(),
         name: Joi.string().min(1).max(100),

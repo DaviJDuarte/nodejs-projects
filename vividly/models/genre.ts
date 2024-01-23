@@ -1,12 +1,9 @@
 import Joi from "joi";
 import mongoose, {ObjectId} from "mongoose";
+import {models} from "../types";
+import IGenre = models.IGenre;
 
-export interface Genre {
-    _id?: ObjectId,
-    name: string,
-}
-
-export const genreSchema: mongoose.Schema<Genre> = new mongoose.Schema<Genre>({
+export const genreSchema: mongoose.Schema<IGenre> = new mongoose.Schema<IGenre>({
     name: {
         type: String,
         required: true,
@@ -15,9 +12,9 @@ export const genreSchema: mongoose.Schema<Genre> = new mongoose.Schema<Genre>({
     }
 });
 
-export const GenreModel: mongoose.Model<Genre> = mongoose.model<Genre>('Genre', genreSchema);
+export const GenreModel: mongoose.Model<IGenre> = mongoose.model<IGenre>('Genre', genreSchema);
 
-export const genreValidator = (genre: Genre) => {
+export const genreValidator = (genre: IGenre) => {
     const schema = Joi.object({
         name: Joi.string().min(3).required()
     });

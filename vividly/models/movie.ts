@@ -1,17 +1,10 @@
-import mongoose, {ObjectId} from "mongoose";
+import mongoose from "mongoose";
 import Joi from "joi";
 import {genreSchema} from "./genre";
-import {Genre} from "./genre";
+import {models} from "../types";
+import IMovie = models.IMovie;
 
-export interface Movie {
-    _id?: ObjectId,
-    title: string,
-    genre: Genre,
-    numberInStock: number,
-    dailyRentalRate: number
-}
-
-export const movieSchema: mongoose.Schema<Movie> = new mongoose.Schema<Movie>({
+export const movieSchema: mongoose.Schema<IMovie> = new mongoose.Schema<IMovie>({
     title: {
         type: String,
         min: 2,
@@ -37,9 +30,9 @@ export const movieSchema: mongoose.Schema<Movie> = new mongoose.Schema<Movie>({
     }
 });
 
-export const MovieModel: mongoose.Model<Movie> = mongoose.model<Movie>('Movie', movieSchema);
+export const MovieModel: mongoose.Model<IMovie> = mongoose.model<IMovie>('Movie', movieSchema);
 
-export const movieCreateValidator = (movie: Movie) => {
+export const movieCreateValidator = (movie: IMovie) => {
     const schema = Joi.object({
         title: Joi.string().min(2).max(255).required(),
         genreId: Joi.string().required(),
@@ -50,7 +43,7 @@ export const movieCreateValidator = (movie: Movie) => {
     return schema.validate(movie);
 };
 
-export const movieUpdateValidator = (movie: Movie) => {
+export const movieUpdateValidator = (movie: IMovie) => {
     const schema = Joi.object({
         title: Joi.string().min(2).max(255),
         genreId: Joi.string(),

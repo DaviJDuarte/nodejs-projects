@@ -4,6 +4,7 @@ import genres from './routes/genres';
 import customers from "./routes/customers";
 import movies from "./routes/movies";
 import rentals from "./routes/rentals";
+import users from './routes/users';
 
 const app: Express = express();
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use('/api/genres', genres);
 app.use('/api/customers', customers);
 app.use('/api/movies', movies);
 app.use('/api/rentals', rentals);
+app.use('/api/users', users);
 
 const port: number = +(process.env.PORT?.toString() || '5000');
 app.listen(port, () => console.log(`Running on port ${port}`));

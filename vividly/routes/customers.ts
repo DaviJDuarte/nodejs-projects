@@ -1,6 +1,5 @@
 import {Request, Response, Router} from "express";
 import {
-    Customer,
     CustomerModel,
     customerCreateValidator,
     customerSchema,
@@ -8,12 +7,14 @@ import {
 } from "../models/customer";
 import mongoose, {HydratedDocument} from "mongoose";
 import {ValidationError} from "joi";
+import {models} from "../types";
+import ICustomer = models.ICustomer;
 
 const router: Router = Router();
 
 router.get('/', async (_req: Request, res: Response) => {
     try {
-        const customers: Customer[] = await CustomerModel.find();
+        const customers: ICustomer[] = await CustomerModel.find();
         return res.json(customers);
     } catch (error) {
         return res.status(500).json(error);
@@ -26,7 +27,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     try {
-        const customer: Customer | null = await CustomerModel.findById(req.params.id);
+        const customer: ICustomer | null = await CustomerModel.findById(req.params.id);
 
         if (!customer) return res.status(404).json({message: `No resource found with id: ${req.params.id}`});
 
@@ -41,14 +42,14 @@ router.post('/', async (req: Request, res: Response) => {
 
     if (error) return res.status(400).json({message: error.message});
 
-    const customer: HydratedDocument<Customer> = new CustomerModel({
+    const customer: HydratedDocument<ICustomer> = new CustomerModel({
         isGold: req.body.isGold || false,
         name: req.body.name,
         phone: req.body.phone
     });
 
     try {
-        const result: Customer = await customer.save();
+        const result: ICustomer = await customer.save();
         return res.json({new_customer: result});
     } catch (ex) {
         return res.status(500).json(ex);
@@ -77,7 +78,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }, {});
 
     try {
-        const result: Customer | null = await CustomerModel.findByIdAndUpdate(id, filteredUpdates, {
+        const result: ICustomer | null = await CustomerModel.findByIdAndUpdate(id, filteredUpdates, {
             new: true
         });
 
@@ -97,7 +98,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     }
 
     try {
-        const customer: Customer | null = await CustomerModel.findByIdAndDelete(req.params.id);
+        const customer: ICustomer | null = await CustomerModel.findByIdAndDelete(req.params.id);
 
         if (!customer) return res.status(404).json({message: `No resource found with id: ${req.params.id}`});
 
