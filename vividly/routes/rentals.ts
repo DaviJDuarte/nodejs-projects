@@ -9,13 +9,14 @@ import {models} from "../types";
 import IRental = models.IRental;
 import IMovie = models.IMovie;
 import ICustomer = models.ICustomer;
+import asyncWrapper from "../middleware/asyncWrapper";
 
 const router: Router = Router();
 
-router.get('/', async (_req: Request, res: Response) => {
+router.get('/', asyncWrapper(async (_req: Request, res: Response) => {
     const rentals: IRental[] = await RentalModel.find();
     return res.json(rentals);
-});
+}));
 
 router.get('/:id', async (req: Request, res: Response) => {
     const id: string = req.params.id;

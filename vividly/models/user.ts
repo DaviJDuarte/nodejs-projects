@@ -3,8 +3,10 @@ import Joi from "joi";
 import passwordComplexity from 'joi-password-complexity'
 import {models} from "../types";
 import IUser = models.IUser;
+import jwt from "jsonwebtoken";
+import config from "config";
 
-export const userSchema: Schema<IUser> = new Schema<IUser>({
+const userSchema: Schema<IUser> = new Schema<IUser>({
     name: {
         type: String,
         required: true,
@@ -21,8 +23,19 @@ export const userSchema: Schema<IUser> = new Schema<IUser>({
     password: {
         type: String,
         required: true
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
     }
 });
+
+userSchema.methods.generateAuthToken = function (): string {
+    return jwt.sign({
+        _id: this._id,
+        isAdmin: this.isAdmin
+    }, config.get('jwtPrivateKey'));
+};
 
 export const UserModel: Model<IUser> = model<IUser>('User', userSchema);
 

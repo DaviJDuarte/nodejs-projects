@@ -1,14 +1,12 @@
-@base=http://localhost:5000/api/users
-@name=David
+@base=http://localhost:5000/api/auth
 @email=example@example.com
 @password=SecurePassword123
 
-### Create new user
+### Authenticating user
 POST {{base}}
 Content-Type: application/json
 
 {
-  "name": "{{name}}",
   "email": "{{email}}",
   "password": "{{password}}"
 }

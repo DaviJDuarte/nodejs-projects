@@ -1,14 +1,26 @@
 import {ObjectId} from "mongoose";
-import {Customer} from "../models/customer";
-import {Movie} from "../models/movie";
-import {Genre} from "../models/genre";
+import {Request} from "express";
+
+namespace global {
+    interface AuthRequest extends Request {
+        user?: DataStoredInToken
+    }
+
+    interface DataStoredInToken {
+        _id: string,
+        isAdmin: boolean
+    }
+}
 
 namespace models {
     interface IUser {
         _id?: ObjectId,
         name: string,
         email: string,
-        password: string
+        password: string,
+        isAdmin?: boolean
+
+        generateAuthToken(): string
     }
 
     interface IGenre {

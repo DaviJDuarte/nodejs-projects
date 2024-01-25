@@ -1,9 +1,13 @@
-import {Request, Response, Router} from "express";
+import {Request, Response, Router,} from "express";
 import {GenreModel, genreValidator} from "../models/genre";
 import mongoose, {HydratedDocument} from "mongoose";
 import {ValidationError} from "joi";
-import {models} from "../types";
+import {global, models} from "../types";
 import IGenre = models.IGenre;
+import auth from "../middleware/auth";
+import AuthRequest = global.AuthRequest;
+import admin from "../middleware/admin";
+import asyncWrapper from "../middleware/asyncWrapper";
 
 const router: Router = Router();
 
@@ -33,7 +37,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', auth, asyncWrapper(async (req: AuthRequest, res: Response) => {
     const {error}: { error: ValidationError | undefined } = genreValidator(req.body);
 
     if (error) return res.status(400).json({message: error.message});
@@ -49,7 +53,7 @@ router.post('/', async (req: Request, res: Response) => {
         return res.status(500).json(ex);
     }
 
-});
+}));
 
 router.put('/:id', async (req: Request, res: Response) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
@@ -74,7 +78,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', [auth, admin], async (req: Request, res: Response) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).json({message: "The provided ID is invalid!"});
     }

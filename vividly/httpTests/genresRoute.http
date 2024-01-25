@@ -11,6 +11,8 @@ GET {{base}}/{{genre_id}}
 ### Create new genre
 POST {{base}}
 Content-Type: application/json
+x-Auth-Token:token
+
 
 {
   "name": "comedy"
@@ -26,3 +28,5 @@ Content-Type: application/json
 
 ### Remove genre from DB
 DELETE {{base}}/{{genre_id}}
+x-Auth-Token:admin_token
+

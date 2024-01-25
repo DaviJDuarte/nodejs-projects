@@ -22,10 +22,11 @@ router.post('/', async (req: Request, res: Response) => {
 
     const salt: string = await bcrypt.genSalt(10);
     newUser.password = await bcrypt.hash(newUser.password, salt);
-    
+
     await newUser.save();
 
-    return res.json(_.pick(newUser, ['_id', 'name', 'email']));
+    const token: string = newUser.generateAuthToken();
+    return res.header('x-Auth-Token', token).json(_.pick(newUser, ['_id', 'name', 'email']));
 });
 
 export default router;
