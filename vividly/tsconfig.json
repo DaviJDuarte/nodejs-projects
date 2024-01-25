@@ -7,8 +7,9 @@
     "strict": true,
     "skipLibCheck": true,
     "typeRoots": [
-      "./types",
+      "./server/types",
       "./node_modules/@types"
-    ]
+    ],
+    "outDir": "./dist"
   }
 }

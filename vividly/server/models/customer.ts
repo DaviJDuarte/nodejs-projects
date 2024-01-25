@@ -1,4 +1,4 @@
-import mongoose, {ObjectId} from "mongoose";
+import mongoose from "mongoose";
 import Joi from "joi";
 import {models} from "../types";
 import ICustomer = models.ICustomer;

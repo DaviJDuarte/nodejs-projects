@@ -1,5 +1,5 @@
 import Joi from "joi";
-import mongoose, {ObjectId} from "mongoose";
+import mongoose from "mongoose";
 import {models} from "../types";
 import IGenre = models.IGenre;
 
