@@ -6,10 +6,11 @@ import {HydratedDocument} from "mongoose";
 import bcrypt from 'bcrypt';
 import {models} from "../types";
 import IUser = models.IUser;
+import asyncWrapper from "../middleware/asyncWrapper";
 
 const router: Router = Router();
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', asyncWrapper(async (req: Request, res: Response) => {
     const {error}: { error: ValidationError | undefined } = userValidator(req.body);
     if (error)
         return res.status(400).json({message: error.message});
@@ -26,7 +27,8 @@ router.post('/', async (req: Request, res: Response) => {
     await newUser.save();
 
     const token: string = newUser.generateAuthToken();
-    return res.header('x-Auth-Token', token).json(_.pick(newUser, ['_id', 'name', 'email']));
-});
+    return res.header('x-Auth-Token', token)
+        .json(_.pick(newUser, ['_id', 'name', 'email']));
+}));
 
 export default router;

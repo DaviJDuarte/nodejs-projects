@@ -10,6 +10,7 @@ import IRental = models.IRental;
 import IMovie = models.IMovie;
 import ICustomer = models.ICustomer;
 import asyncWrapper from "../middleware/asyncWrapper";
+import validateObjectId from "../middleware/validateObjectId";
 
 const router: Router = Router();
 
@@ -18,20 +19,17 @@ router.get('/', asyncWrapper(async (_req: Request, res: Response) => {
     return res.json(rentals);
 }));
 
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
     const id: string = req.params.id;
-
-    if (!isValidObjectId(id))
-        return res.status(400).json({message: `The provided rentalId(${id}) is invalid!`});
 
     const rental: IRental | null = await RentalModel.findById(id);
     if (!rental)
         return res.status(404).json({message: `No rental found with ID(${id})`});
 
     return res.json(rental);
-});
+}));
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', asyncWrapper(async (req: Request, res: Response) => {
     const {error}: { error: ValidationError | undefined } = rentalValidator(req.body);
     if (error) return res.status(400).json({message: error.message});
 
@@ -60,6 +58,9 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     const session: ClientSession = await mongoose.startSession();
+
+    // Keeping this try catch even though there is a global error handler.
+    // This process with sessions requires custom error handling.
     try {
         await session.withTransaction(async () => {
             await rental.save();
@@ -75,5 +76,6 @@ router.post('/', async (req: Request, res: Response) => {
     } finally {
         await session.endSession();
     }
-});
+}));
+
 export default router;

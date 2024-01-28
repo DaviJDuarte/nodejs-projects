@@ -10,5 +10,10 @@ export default function (): void {
         logger.error(ex.message, ex);
         process.exit();
     });
+
+    process.on('SIGINT', () => {
+        logger.close();
+        process.exit();
+    });
 }
 

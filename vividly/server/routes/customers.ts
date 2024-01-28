@@ -9,35 +9,25 @@ import mongoose, {HydratedDocument} from "mongoose";
 import {ValidationError} from "joi";
 import {models} from "../types";
 import ICustomer = models.ICustomer;
+import validateObjectId from "../middleware/validateObjectId";
+import asyncWrapper from "../middleware/asyncWrapper";
 
 const router: Router = Router();
 
-router.get('/', async (_req: Request, res: Response) => {
-    try {
-        const customers: ICustomer[] = await CustomerModel.find();
-        return res.json(customers);
-    } catch (error) {
-        return res.status(500).json(error);
-    }
-});
+router.get('/', asyncWrapper(async (_req: Request, res: Response) => {
+    const customers: ICustomer[] = await CustomerModel.find();
+    return res.json(customers);
+}));
 
-router.get('/:id', async (req: Request, res: Response) => {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).json({message: "The provided ID is invalid!"});
-    }
+router.get('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
+    const customer: ICustomer | null = await CustomerModel.findById(req.params.id);
 
-    try {
-        const customer: ICustomer | null = await CustomerModel.findById(req.params.id);
+    if (!customer) return res.status(404).json({message: `No resource found with id: ${req.params.id}`});
 
-        if (!customer) return res.status(404).json({message: `No resource found with id: ${req.params.id}`});
+    return res.json(customer);
+}));
 
-        return res.json(customer);
-    } catch (ex) {
-        return res.status(500).json(ex);
-    }
-});
-
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', asyncWrapper(async (req: Request, res: Response) => {
     const {error}: { error: ValidationError | undefined } = customerCreateValidator(req.body);
 
     if (error) return res.status(400).json({message: error.message});
@@ -48,20 +38,12 @@ router.post('/', async (req: Request, res: Response) => {
         phone: req.body.phone
     });
 
-    try {
-        const result: ICustomer = await customer.save();
-        return res.json({new_customer: result});
-    } catch (ex) {
-        return res.status(500).json(ex);
-    }
-});
+    const result: ICustomer = await customer.save();
+    return res.json({new_customer: result});
+}));
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
     const {id} = req.params;
-
-    if (!mongoose.isValidObjectId(id)) {
-        return res.status(400).json({message: "The provided ID is invalid!"});
-    }
 
     const {error}: { error: ValidationError | undefined } = customerUpdateValidator(req.body);
     if (error) return res.status(400).json({message: error.message});
@@ -77,22 +59,18 @@ router.put('/:id', async (req: Request, res: Response) => {
         return acc;
     }, {});
 
-    try {
-        const result: ICustomer | null = await CustomerModel.findByIdAndUpdate(id, filteredUpdates, {
-            new: true
-        });
+    const result: ICustomer | null = await CustomerModel.findByIdAndUpdate(id, filteredUpdates, {
+        new: true
+    });
 
-        if (!result) {
-            return res.status(400).json({message: 'Customer not found'});
-        }
-
-        return res.json({updated_customer: result});
-    } catch (ex) {
-        return res.status(500).json(ex);
+    if (!result) {
+        return res.status(400).json({message: 'Customer not found'});
     }
-});
 
-router.delete('/:id', async (req: Request, res: Response) => {
+    return res.json({updated_customer: result});
+}));
+
+router.delete('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).json({message: "The provided ID is invalid!"});
     }
@@ -106,6 +84,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
     } catch (ex) {
         return res.status(500).json(ex);
     }
-});
+}));
 
 export default router;

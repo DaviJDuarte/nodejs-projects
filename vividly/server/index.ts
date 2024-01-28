@@ -16,4 +16,6 @@ config();
 app.use(error);
 
 const port: number = +(process.env.PORT?.toString() || '5000');
-app.listen(port, () => logger.info(`Running on port ${port}`));
+const server = app.listen(port, () => logger.info(`Running on port ${port}`));
+
+export default server;

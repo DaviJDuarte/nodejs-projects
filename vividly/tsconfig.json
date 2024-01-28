@@ -11,5 +11,9 @@
       "./node_modules/@types"
     ],
     "outDir": "./dist"
-  }
+  },
+  "exclude": [
+    "tests",
+    "jest.config.ts"
+  ]
 }
