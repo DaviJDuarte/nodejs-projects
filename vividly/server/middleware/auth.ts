@@ -13,6 +13,6 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
         req.user = jwt.verify(token, config.get('jwtPrivateKey')) as DataStoredInToken;
         next();
     } catch (e) {
-        return res.status(401).json({message: 'Invalid token.'});
+        return res.status(400).json({message: 'Invalid token.'});
     }
 }

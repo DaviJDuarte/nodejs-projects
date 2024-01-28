@@ -37,7 +37,7 @@ router.post('/', auth, asyncWrapper(async (req: AuthRequest, res: Response) => {
     });
 
     const result: IGenre = await genre.save();
-    return res.json({new_genre: result});
+    return res.json(result);
 }));
 
 router.put('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
