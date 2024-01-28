@@ -45,12 +45,13 @@ router.put('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Resp
     if (error) return res.status(400).json({message: error.message});
 
     const genre: IGenre | null = await GenreModel.findByIdAndUpdate(req.params.id, {
-        name: req.body.name
-    });
+            name: req.body.name
+        },
+        {new: true});
 
     if (!genre) return res.status(404).json({message: `No resource found with id(${req.params.id}).`});
 
-    return res.json({updated_genre: genre});
+    return res.json(genre);
 }));
 
 router.delete('/:id', [auth, admin, validateObjectId], asyncWrapper(async (req: Request, res: Response) => {
@@ -58,7 +59,7 @@ router.delete('/:id', [auth, admin, validateObjectId], asyncWrapper(async (req: 
 
     if (!genre) return res.status(404).json({message: `No resource found with id(${req.params.id}).`});
 
-    return res.json({deleted: genre});
+    return res.json(genre);
 }));
 
 export default router;
