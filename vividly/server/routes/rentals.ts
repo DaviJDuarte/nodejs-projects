@@ -72,7 +72,7 @@ router.post('/', asyncWrapper(async (req: Request, res: Response) => {
         return res.json(rental);
     } catch (ex) {
         await session.abortTransaction();
-        return res.status(500).json({message: "Something went wrong"});
+        throw new Error();
     } finally {
         await session.endSession();
     }

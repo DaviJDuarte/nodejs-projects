@@ -5,6 +5,8 @@ import movies from "../routes/movies";
 import rentals from "../routes/rentals";
 import users from "../routes/users";
 import auth from "../routes/auth";
+import returns from "../routes/returns";
+import error from "../middleware/error";
 
 export default function (app: Express): void {
     app.use(express.json());
@@ -14,4 +16,6 @@ export default function (app: Express): void {
     app.use('/api/rentals', rentals);
     app.use('/api/users', users);
     app.use('/api/auth', auth);
+    app.use('/api/returns', returns);
+    app.use(error);
 }
