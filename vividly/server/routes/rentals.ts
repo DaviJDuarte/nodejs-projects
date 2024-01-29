@@ -1,7 +1,6 @@
 import {Router, Request, Response} from "express";
 import _ from 'lodash';
 import {RentalModel, rentalValidator} from "../models/rental";
-import {ValidationError} from "joi";
 import mongoose, {HydratedDocument, isValidObjectId, ClientSession} from "mongoose";
 import {MovieModel} from "../models/movie";
 import {CustomerModel} from "../models/customer";
@@ -11,6 +10,8 @@ import IMovie = models.IMovie;
 import ICustomer = models.ICustomer;
 import asyncWrapper from "../middleware/asyncWrapper";
 import validateObjectId from "../middleware/validateObjectId";
+import auth from "../middleware/auth";
+import validateRequestBody from "../middleware/validateRequestBody";
 
 const router: Router = Router();
 
@@ -29,10 +30,7 @@ router.get('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Resp
     return res.json(rental);
 }));
 
-router.post('/', asyncWrapper(async (req: Request, res: Response) => {
-    const {error}: { error: ValidationError | undefined } = rentalValidator(req.body);
-    if (error) return res.status(400).json({message: error.message});
-
+router.post('/', [auth, validateRequestBody(rentalValidator)], asyncWrapper(async (req: Request, res: Response) => {
     const customerId = req.body.customerId;
     const movieId = req.body.movieId;
 

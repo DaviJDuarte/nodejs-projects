@@ -6,11 +6,13 @@ import {
     customerUpdateValidator
 } from "../models/customer";
 import mongoose, {HydratedDocument} from "mongoose";
-import {ValidationError} from "joi";
 import {models} from "../types";
 import ICustomer = models.ICustomer;
 import validateObjectId from "../middleware/validateObjectId";
 import asyncWrapper from "../middleware/asyncWrapper";
+import validateRequestBody from "../middleware/validateRequestBody";
+import auth from "../middleware/auth";
+import admin from "../middleware/admin";
 
 const router: Router = Router();
 
@@ -27,11 +29,7 @@ router.get('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Resp
     return res.json(customer);
 }));
 
-router.post('/', asyncWrapper(async (req: Request, res: Response) => {
-    const {error}: { error: ValidationError | undefined } = customerCreateValidator(req.body);
-
-    if (error) return res.status(400).json({message: error.message});
-
+router.post('/', [auth, validateRequestBody(customerCreateValidator)], asyncWrapper(async (req: Request, res: Response) => {
     const customer: HydratedDocument<ICustomer> = new CustomerModel({
         isGold: req.body.isGold || false,
         name: req.body.name,
@@ -42,11 +40,8 @@ router.post('/', asyncWrapper(async (req: Request, res: Response) => {
     return res.json({new_customer: result});
 }));
 
-router.put('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
+router.put('/:id', [auth, validateObjectId, validateRequestBody(customerUpdateValidator)], asyncWrapper(async (req: Request, res: Response) => {
     const {id} = req.params;
-
-    const {error}: { error: ValidationError | undefined } = customerUpdateValidator(req.body);
-    if (error) return res.status(400).json({message: error.message});
 
     const updates = req.body;
 
@@ -70,7 +65,7 @@ router.put('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Resp
     return res.json({updated_customer: result});
 }));
 
-router.delete('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
+router.delete('/:id', [auth, admin, validateObjectId], asyncWrapper(async (req: Request, res: Response) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).json({message: "The provided ID is invalid!"});
     }

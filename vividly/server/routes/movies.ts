@@ -2,12 +2,14 @@ import {Request, Response, Router} from "express";
 import {MovieModel, movieCreateValidator, movieSchema, movieUpdateValidator} from "../models/movie";
 import {GenreModel} from "../models/genre";
 import mongoose, {HydratedDocument} from "mongoose";
-import {ValidationError} from "joi";
 import {models} from "../types";
 import IMovie = models.IMovie;
 import IGenre = models.IGenre;
 import asyncWrapper from "../middleware/asyncWrapper";
 import validateObjectId from "../middleware/validateObjectId";
+import validateRequestBody from "../middleware/validateRequestBody";
+import auth from "../middleware/auth";
+import admin from "../middleware/admin";
 
 const router: Router = Router();
 
@@ -24,10 +26,7 @@ router.get('/:id', asyncWrapper(async (req: Request, res: Response) => {
     return res.json(movie);
 }));
 
-router.post('/', asyncWrapper(async (req: Request, res: Response) => {
-    const {error}: { error: ValidationError | undefined } = movieCreateValidator(req.body);
-    if (error) return res.status(400).json({message: error.message});
-
+router.post('/', [auth, validateRequestBody(movieCreateValidator)], asyncWrapper(async (req: Request, res: Response) => {
     if (!mongoose.isValidObjectId(req.body.genreId)) {
         return res.status(400).json({message: "The provided genreId is invalid!"});
     }
@@ -51,12 +50,8 @@ router.post('/', asyncWrapper(async (req: Request, res: Response) => {
 
 }));
 
-router.put('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
-    const {error}: { error: ValidationError | undefined } = movieUpdateValidator(req.body);
-    if (error) return res.status(400).json({message: error.message});
-
+router.put('/:id', [auth, validateRequestBody(movieUpdateValidator), validateObjectId], asyncWrapper(async (req: Request, res: Response) => {
     const {id} = req.params;
-
     const updates = req.body;
 
     // Filter updates to include only defined fields in the schema
@@ -95,7 +90,7 @@ router.put('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Resp
     res.json(result);
 }));
 
-router.delete('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
+router.delete('/:id', [auth, admin, validateObjectId], asyncWrapper(async (req: Request, res: Response) => {
     const result: IMovie | null = await MovieModel.findByIdAndDelete(req.params.id);
     if (!result) return res.status(404).json({message: `No resource found with ID(${req.params.id}).`});
     return res.json({deleted: result});

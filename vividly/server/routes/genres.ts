@@ -1,7 +1,6 @@
 import {Request, Response, Router,} from "express";
 import {GenreModel, genreValidator} from "../models/genre";
 import {HydratedDocument} from "mongoose";
-import {ValidationError} from "joi";
 import {global, models} from "../types";
 import IGenre = models.IGenre;
 import auth from "../middleware/auth";
@@ -9,6 +8,7 @@ import AuthRequest = global.AuthRequest;
 import admin from "../middleware/admin";
 import asyncWrapper from "../middleware/asyncWrapper";
 import validateObjectId from "../middleware/validateObjectId";
+import validateRequestBody from "../middleware/validateRequestBody";
 
 const router: Router = Router();
 
@@ -27,11 +27,7 @@ router.get('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Resp
 }));
 
 
-router.post('/', auth, asyncWrapper(async (req: AuthRequest, res: Response) => {
-    const {error}: { error: ValidationError | undefined } = genreValidator(req.body);
-
-    if (error) return res.status(400).json({message: error.message});
-
+router.post('/', [auth, validateRequestBody(genreValidator)], asyncWrapper(async (req: AuthRequest, res: Response) => {
     const genre: HydratedDocument<IGenre> = new GenreModel({
         name: req.body.name
     });
@@ -40,10 +36,7 @@ router.post('/', auth, asyncWrapper(async (req: AuthRequest, res: Response) => {
     return res.json(result);
 }));
 
-router.put('/:id', validateObjectId, asyncWrapper(async (req: Request, res: Response) => {
-    const {error}: { error: ValidationError | undefined } = genreValidator(req.body);
-    if (error) return res.status(400).json({message: error.message});
-
+router.put('/:id', [validateObjectId, validateRequestBody(genreValidator)], asyncWrapper(async (req: Request, res: Response) => {
     const genre: IGenre | null = await GenreModel.findByIdAndUpdate(req.params.id, {
             name: req.body.name
         },
