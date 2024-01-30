@@ -50,5 +50,7 @@ namespace models {
         dateOut?: Date,
         dateReturned?: Date
         rentalFee?: number
+
+        return(): void
     }
 }

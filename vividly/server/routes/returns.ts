@@ -1,12 +1,11 @@
 import {Router, Request, Response} from "express";
 import asyncWrapper from "../middleware/asyncWrapper";
 import auth from "../middleware/auth";
-import Joi, {ValidationError, ValidationResult} from "joi";
+import Joi, {ValidationResult} from "joi";
 import mongoose, {ClientSession, HydratedDocument} from "mongoose";
 import {RentalModel} from "../models/rental";
 import {models} from "../types";
 import IRental = models.IRental;
-import moment from "moment";
 import {MovieModel} from "../models/movie";
 import validateRequestBody from "../middleware/validateRequestBody";
 
@@ -38,19 +37,11 @@ router.post('/', [auth, validateRequestBody(validateReturn)], asyncWrapper(async
     if (!rental) return res.status(404).json('Rental not found');
     if (rental.dateReturned) return res.status(400).json('This rental has already been processed');
 
-    rental.dateReturned = new Date();
-
-    const rentalDays: number = moment().diff(rental.dateOut, 'days');
-    rental.rentalFee = rental.movie.dailyRentalRate * rentalDays;
-
-    await rental.save();
-
-
     const session: ClientSession = await mongoose.startSession();
 
     try {
         await session.withTransaction(async () => {
-            await rental.save();
+            rental.return();
             await MovieModel.findByIdAndUpdate(rental.movie._id, {
                 $inc: {numberInStock: 1}
             });

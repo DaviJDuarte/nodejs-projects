@@ -2,6 +2,7 @@ import mongoose, {Model, Schema} from "mongoose";
 import Joi from "joi";
 import {models} from "../types";
 import IRental = models.IRental;
+import moment from "moment/moment";
 
 export const rentalSchema: Schema<IRental> = new mongoose.Schema<IRental>({
     customer: {
@@ -64,6 +65,14 @@ export const rentalSchema: Schema<IRental> = new mongoose.Schema<IRental>({
         min: 0
     }
 });
+
+rentalSchema.methods.return = async function () {
+    this.dateReturned = new Date();
+
+    const rentalDays: number = moment().diff(this.dateOut, 'days');
+    this.rentalFee = this.movie.dailyRentalRate * rentalDays;
+    await this.save();
+};
 
 export const RentalModel: Model<IRental> = mongoose.model<IRental>('Rental', rentalSchema);
 
