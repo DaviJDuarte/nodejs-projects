@@ -21,7 +21,7 @@ export function getUser(username: any): {id: number, username: any}{
     return {id: new Date().getTime(), username};
 }
 
-export function fizzBuzz(input: number): "Fizz" | "Buzz" | "FizzBuzz" | number{
+export function fizzBuzz(input: number): "Fizz" | "Buzz" | "FizzBuzz" | number {
     if((input % 3  === 0) && (input % 5 === 0)) return "FizzBuzz";
     if(input % 3  === 0) return "Fizz";
     if(input % 5 === 0) return "Buzz";

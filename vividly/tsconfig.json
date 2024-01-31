@@ -15,5 +15,6 @@
   "exclude": [
     "tests",
     "jest.config.ts"
-  ]
+  ],
+  "moduleResolution": "node"
 }
